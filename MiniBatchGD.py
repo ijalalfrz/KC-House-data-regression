@@ -28,6 +28,7 @@ class MiniBatchGradientDescent:
         self.Y_test  = Y_test
         self.lr = lr
         self.max_iter = max_iter
+        #random theta sesuai jumlah feature + 1 untuk intercept
         self.theta = np.random.randn(self.X_train.shape[1]+1)
         self.batch = batch
         
@@ -48,12 +49,13 @@ class MiniBatchGradientDescent:
         #theta_hist = np.zeros(max_iter)
         i = 0
         while i < self.max_iter:
-            #random data
+            #random index data
             c = 0
             index = np.random.permutation(m)
             self.X_train = self.X_train[index]
             self.Y_train = self.Y_train[index]
-
+            
+            #kerjakan gradient descent sesuai jumlah batch
             for j in range(0,m,self.batch):
                 X = self.X_train[j:j+self.batch]
                 Y = self.Y_train[j:j+self.batch]
@@ -62,7 +64,7 @@ class MiniBatchGradientDescent:
                 y_pred = np.dot(X,self.theta)
                
                 error = y_pred-Y
-                
+                #update semua theta
                 self.theta = self.theta - (1/m)*self.lr*(X.T.dot((error)))
                 
                 c += self.costFunction(self.theta,X, Y)
@@ -87,7 +89,9 @@ class MiniBatchGradientDescent:
         data = pd.DataFrame()
         data['act'] = Y
         data['pred'] = res
+        #r2 = 1 - (RSS/TSS)
         r2 = r2_score(res, Y)
+        #adj-r squared untuk mengecek r2 terhadap perubahan jumlah feature
         adjr2 = 1 - (1-r2)*(len(X)-1)/(len(X)-len(X[0])-1)
         data['r2_score'] = r2
         data['adjusted_r2_score'] = adjr2
